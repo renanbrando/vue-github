@@ -13,11 +13,8 @@
                             <v-form v-model="valid" ref="form">
                                 <v-text-field outline color="secondary" label="Enter your e-mail address" v-model="email" :rules="emailRules"
                                     required></v-text-field>
-                                <v-text-field outline color="secondary" label="Enter your password" v-model="password" min="8" :append-icon="e1 ? 'visibility_off' : 'visibility'"
-                                    @click:append="() => (e1 = !e1)" :type="e1 ? 'password' : 'text'" :rules="passwordRules"
-                                    counter required></v-text-field>
                                 <v-layout justify-space-between>
-                                    <v-btn @click="submit" dark :class=" { 'white--text' : valid, disabled: !valid }" color="deep-purple darken-1">Signin</v-btn>
+                                    <v-btn @click="submit" dark :class=" { 'white--text' : valid, disabled: !valid }" color="deep-purple darken-1">Login</v-btn>
                                 </v-layout>
                             </v-form>
                         </div>
@@ -36,10 +33,6 @@ import axios from 'axios';
             return {
                 valid: false,
                 e1: true,
-                password: '',
-                passwordRules: [
-                    (v) => !!v || 'Password is required',
-                ],
                 email: '',
                 emailRules: [
                     (v) => !!v || 'E-mail is required',
@@ -47,22 +40,33 @@ import axios from 'axios';
                 ],
             }
         },
+        beforeCreate(){
+            if (this.$route.query.code){
+                let code = this.$route.query.code;
+                let url = `https://github.com/login/oauth/access_token?client_id=ad3ff196bbad5e9437a2&client_secret=7b940627c3fc95845760a2bbea5f329cfefdf837&code=${code}`;
+                axios.get(url, { headers: { Accept: 'application/json' } }).then(res => {
+                    console.log(res.data.access_token);
+                    this.login(res.data.access_token);
+                });
+            }
+        },
         methods: {
             submit() {
-                axios.get('https://github.com/login/oauth/authorize?scope=renanbrando:reebrando@gmail.com&client_id=ad3ff196bbad5e9437a2').then(resp=>{
-                    console.log(resp);
-                });
-                /*if (this.$refs.form.validate()) {
-                    //this.$refs.form.$el.submit();
-                    this.$store.dispatch("authenticate").then(() => {
+                if (this.$refs.form.validate()) {
+                    axios.get(`https://github.com/login/oauth/authorize?login=${this.email}&client_id=ad3ff196bbad5e9437a2`).then(resp => {
                         // eslint-disable-next-line no-console
-                        //console.log("User authenticated? " + this.$store.getters.isAuthenticated);
-                        this.$router.push('/home');
-                    }, error => {
-                        // eslint-disable-next-line no-console
-                        console.error(error);
-                    })     
-                }*/
+                        console.log(resp);
+                        window.location = resp.config.url;
+                    });
+                }
+            },
+            login(token){
+                this.$store.dispatch("authenticate").then(() => {
+                    this.$router.push('/home');
+                }, error => {
+                    // eslint-disable-next-line no-console
+                    console.error(error);
+                });     
             },
             clear() {
                 this.$refs.form.reset()

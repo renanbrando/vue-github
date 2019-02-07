@@ -17,13 +17,23 @@ export default new Router({
       }  
     },
     { 
-      path: '', 
+      path: '/home', 
       components: {
         default: () => import('./views/Home.vue'),
         'header': () => import('./components/Toolbar.vue') 
       },
       meta: {
-        requiresAuth: true
+        requiresAuth: false
+      }
+    },
+    { 
+      path: '/home:code', 
+      components: {
+        default: () => import('./views/Home.vue'),
+        'header': () => import('./components/Toolbar.vue') 
+      },
+      meta: {
+        requiresAuth: false
       }
     },
     { 
