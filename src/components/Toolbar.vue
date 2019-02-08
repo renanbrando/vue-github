@@ -5,11 +5,11 @@
                 <v-list class="pa-0">
                     <v-list-tile avatar>
                         <v-list-tile-avatar>
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZXoZ0rGm7BTxNYLDBKUfr3ZLGuL4NPLKK715CMtmt_byIGSfv">
+                            <img :src="user.avatar_url">
                         </v-list-tile-avatar>
 
                         <v-list-tile-content>
-                            <v-list-tile-title>Github Vue</v-list-tile-title>
+                            <v-list-tile-title>{{user.login}}</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
                 </v-list>
@@ -52,6 +52,7 @@ export default {
     name: "Header",
     data() {
         return {
+            user: this.$store.getters.user,
             drawer: false,
             items: [
                 { title: 'Home', icon: 'list', path: "/" },

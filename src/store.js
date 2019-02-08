@@ -7,38 +7,15 @@ export const store = new Vuex.Store({
     state: {
         authToken: "",
         isAuthenticated: false,
-        jokes: [],
-        jokesData: {
-            labels: [],
-            datasets: [
-                { // one line graph
-                    label: 'Jokes Length',
-                    data: [],
-                    backgroundColor: [
-                        '#36495d' // Blue
-                    ],
-                    borderColor: [
-                        '#36495d'
-                    ],
-                    borderWidth: 3
-                }
-            ]   
-        }
+        user: {}
     },
     mutations: {
-        add(state, joke) {
-            state.jokes.push(joke);
-        },
-        change(state, jokes) {
-            state.jokes = jokes;
-        },
-        addJokeLength(state, joke) {
-            state.jokesData.labels.push(state.jokes.length);
-            state.jokesData.datasets[0].data.push(joke.value.length);
-        },
         authenticate(state, token){
             state.isAuthenticated = true;
             state.authToken = token;
+        },
+        setUser(state, user){
+            state.user = user;
         },
         logout(state){
             state.isAuthenticated = false;
@@ -46,7 +23,7 @@ export const store = new Vuex.Store({
     },
     actions: {
         authenticate(state, token){
-            state.commit('authenticate');
+            state.commit('authenticate', token);
         },
         logout(state){
             state.commit('logout');
@@ -54,8 +31,7 @@ export const store = new Vuex.Store({
     },
     getters: {
         isAuthenticated: state => state.isAuthenticated,
-        jokes: state => state.jokes,
-        jokesData: state => state.jokesData,
-        authToken: state => state.authToken
+        authToken: state => state.authToken,
+        user: state => state.user
     }
 })

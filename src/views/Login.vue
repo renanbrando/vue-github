@@ -46,7 +46,7 @@ import axios from 'axios';
                 let url = `https://github.com/login/oauth/access_token?client_id=ad3ff196bbad5e9437a2&client_secret=7b940627c3fc95845760a2bbea5f329cfefdf837&code=${code}`;
                 axios.get(url, { headers: { Accept: 'application/json' } }).then(res => {
                     console.log(res.data.access_token);
-                    this.login(res.data.access_token);
+                    this.getUser(res.data.access_token);
                 });
             }
         },
@@ -61,12 +61,18 @@ import axios from 'axios';
                 }
             },
             login(token){
-                this.$store.dispatch("authenticate").then(() => {
+                this.$store.dispatch("authenticate", token).then(() => {
                     this.$router.push('/home');
                 }, error => {
                     // eslint-disable-next-line no-console
                     console.error(error);
                 });     
+            },
+            getUser(token){
+                axios.get(`https://api.github.com/user?access_token=${token}`).then(user=>{
+                    this.$store.commit('setUser', user.data);
+                    this.login(token);
+                });
             },
             clear() {
                 this.$refs.form.reset()
