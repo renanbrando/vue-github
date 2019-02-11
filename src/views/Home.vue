@@ -69,7 +69,7 @@ export default {
         }
     },
     beforeCreate(){
-        axios.get("https://api.github.com/users/renanbrando/repos").then((res)=>{
+        axios.get(`https://api.github.com/users/${this.$store.getters.currentUser.displayName}/repos`).then((res)=>{
             this.repos = res.data;
         }); 
     },

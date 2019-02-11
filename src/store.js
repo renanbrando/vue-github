@@ -1,13 +1,22 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+const firebase = require('./firebaseConfig.js')
 
 Vue.use(Vuex)
+
+// handle page reload
+firebase.auth.onAuthStateChanged(user => {
+    if (user) {
+        store.commit('setCurrentUser', user)
+    }
+})
 
 export const store = new Vuex.Store({
     state: {
         authToken: "",
         isAuthenticated: false,
-        user: {}
+        user: {},
+        currentUser: null,
     },
     mutations: {
         authenticate(state, token){
@@ -19,6 +28,9 @@ export const store = new Vuex.Store({
         },
         logout(state){
             state.isAuthenticated = false;
+        },
+        setCurrentUser(state, user) {
+            state.currentUser = user
         }
     },
     actions: {
@@ -27,11 +39,16 @@ export const store = new Vuex.Store({
         },
         logout(state){
             state.commit('logout');
+        },
+        clearData({ commit }) {
+            commit('setCurrentUser', null)
         }
     },
     getters: {
         isAuthenticated: state => state.isAuthenticated,
         authToken: state => state.authToken,
-        user: state => state.user
+        user: state => state.user,
+        currentUser: state => state.currentUser
     }
 })
+

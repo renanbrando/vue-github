@@ -10,23 +10,14 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Header from './components/Toolbar.vue'
 
 export default {
   name: 'App',
-  components: {
-    Header
-  },
-  data () {
-    return {
-  
-    }
-  },
-  mounted(){
-    
-  },
-  methods: {
-    
+  components: { Header },
+  computed: {
+    ...mapState(['currentUser'])
   }
 }
 </script>

@@ -48,28 +48,35 @@
 
 
 <script>
+import * as firebase from '../firebaseConfig.js'
+
 export default {
     name: "Header",
     data() {
         return {
             user: this.$store.getters.user,
             drawer: false,
-            items: [
-                { title: 'Home', icon: 'list', path: "/" },
-                { title: 'Favorites', icon: 'favorite', path: "/favorites" }
+            items: [{
+                    title: 'Home',
+                    icon: 'list',
+                    path: "/"
+                },
+                {
+                    title: 'Favorites',
+                    icon: 'favorite',
+                    path: "/favorites"
+                }
             ]
         }
     },
     methods: {
-        logout(){
-            this.$store.dispatch("logout").then( () => {
-                // eslint-disable-next-line no-console
-                console.log("User authenticated? " + this.$store.getters.isAuthenticated);
+        logout() {
+            firebase.auth.signOut().then(() => {
+                this.$store.dispatch('clearData');
                 this.$router.push('/login');
-            }, error => {
-                // eslint-disable-next-line no-console
-                console.error(error);
-            })     
+            }).catch(err => {
+                console.log(err);
+            })
         }
     }
 }
