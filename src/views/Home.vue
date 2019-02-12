@@ -69,9 +69,16 @@ export default {
         }
     },
     beforeCreate(){
-        axios.get(`https://api.github.com/users/${this.$store.getters.currentUser.displayName}/repos`).then((res)=>{
-            this.repos = res.data;
+        let self = this;
+        axios.get(`https://api.github.com/users/${self.$store.getters.currentUser.displayName}/repos`).then((res) => {
+            self.repos = res.data;
         }); 
+
+        axios.get().then(resp => {
+            let user = self.$store.getters.currentUser;
+            user.photoURL = resp.data.avatar_url;
+            self.$store.commit('setCurrentUser', user);
+        });
     },
     methods: {
       

@@ -17,6 +17,12 @@ export const store = new Vuex.Store({
         isAuthenticated: false,
         user: {},
         currentUser: null,
+        snackbar: {
+            show: false,
+            text: '',
+            timeout: 6000,
+            color: ''
+        },
     },
     mutations: {
         authenticate(state, token){
@@ -31,6 +37,10 @@ export const store = new Vuex.Store({
         },
         setCurrentUser(state, user) {
             state.currentUser = user
+        },
+        showSnackBar(state, snackbar){
+            snackbar.show = true;
+            state.snackbar = snackbar;
         }
     },
     actions: {
@@ -48,7 +58,8 @@ export const store = new Vuex.Store({
         isAuthenticated: state => state.isAuthenticated,
         authToken: state => state.authToken,
         user: state => state.user,
-        currentUser: state => state.currentUser
+        currentUser: state => state.currentUser,
+        snackbar: state => state.snackbar
     }
 })
 

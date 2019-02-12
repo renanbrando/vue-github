@@ -49,12 +49,6 @@
                 </v-card>
             </v-flex>
         </v-layout>
-        <v-snackbar v-model="snackbar.show" :bottom="true" :timeout="snackbar.timeout" :color="snackbar.color">
-            {{ snackbar.text }}
-            <v-btn flat @click="snackbar.show = false">
-                Close
-            </v-btn>
-        </v-snackbar>
     </v-container>
 </template>
 
@@ -65,12 +59,6 @@
     export default {
         data() {
             return {
-                snackbar: {
-                    show: false,
-                    text: '',
-                    timeout: 6000,
-                    color: 'pink'
-                },
                 loginScreen: true,
                 valid: false,
                 validSignup: false,
@@ -167,9 +155,10 @@
                         self.$store.commit('setCurrentUser', user);
                         self.$router.push('/home');
                     }).catch(err => {
-                        self.snackbar.color = 'error';
-                        self.snackbar.text = err;
-                        self.snackbar.show = true;
+                        self.$store.commit('showSnackBar', {
+                            text: err,
+                            color: 'error',
+                        });
                     })
                 }
             },
@@ -187,9 +176,10 @@
                             })
                         }
                     }).catch(function (error) {
-                        self.snackbar.color = 'error';
-                        self.snackbar.text = error;
-                        self.snackbar.show = true;
+                        this.$store.commit('showSnackBar', {
+                            text: error,
+                            color: 'error',
+                        });
                     });
                 }
             },

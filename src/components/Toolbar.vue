@@ -5,7 +5,7 @@
                 <v-list class="pa-0">
                     <v-list-tile avatar>
                         <v-list-tile-avatar>
-                            <img :src="user.avatar_url">
+                            <img :src="avatar">
                         </v-list-tile-avatar>
 
                         <v-list-tile-content>
@@ -54,7 +54,7 @@ export default {
     name: "Header",
     data() {
         return {
-            user: this.$store.getters.user,
+            avatar: this.$store.getters.currentUser.photoURL,
             drawer: false,
             items: [{
                     title: 'Home',
@@ -75,7 +75,10 @@ export default {
                 this.$store.dispatch('clearData');
                 this.$router.push('/login');
             }).catch(err => {
-                console.log(err);
+                this.$store.commit('showSnackBar', {
+                    text: err,
+                    color: 'error',
+                });
             })
         }
     }
