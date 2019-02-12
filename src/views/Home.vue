@@ -74,7 +74,7 @@ export default {
             self.repos = res.data;
         }); 
 
-        axios.get().then(resp => {
+        axios.get(`https://api.github.com/users/${self.$store.getters.currentUser.displayName}?client_id=ad3ff196bbad5e9437a2&client_secret=7b940627c3fc95845760a2bbea5f329cfefdf837`).then(resp => {
             let user = self.$store.getters.currentUser;
             user.photoURL = resp.data.avatar_url;
             self.$store.commit('setCurrentUser', user);

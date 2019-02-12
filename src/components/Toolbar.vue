@@ -5,11 +5,11 @@
                 <v-list class="pa-0">
                     <v-list-tile avatar>
                         <v-list-tile-avatar>
-                            <img :src="avatar">
+                            <img :src="user.photoURL">
                         </v-list-tile-avatar>
 
                         <v-list-tile-content>
-                            <v-list-tile-title>{{user.login}}</v-list-tile-title>
+                            <v-list-tile-title>{{user.displayName}}</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
                 </v-list>
@@ -54,7 +54,6 @@ export default {
     name: "Header",
     data() {
         return {
-            avatar: this.$store.getters.currentUser.photoURL,
             drawer: false,
             items: [{
                     title: 'Home',
@@ -71,15 +70,23 @@ export default {
     },
     methods: {
         logout() {
+            let self = this;
+
             firebase.auth.signOut().then(() => {
-                this.$store.dispatch('clearData');
-                this.$router.push('/login');
+                self.$store.dispatch('clearData');
+                self.$router.push('/login');
             }).catch(err => {
-                this.$store.commit('showSnackBar', {
+                self.$store.commit('showSnackBar', {
                     text: err,
                     color: 'error',
                 });
             })
+        }
+    },
+    computed: {
+        user(){
+            let self = this;
+            return self.$store.getters.currentUser;
         }
     }
 }
