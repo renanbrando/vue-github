@@ -15,10 +15,11 @@
                                     :rules="emailRules" required></v-text-field>
                                 <v-text-field outline color="secondary" type="password" label="Enter your password"
                                     v-model="password" :rules="passwordRules" required></v-text-field>
-                                <v-layout justify-space-between>
-                                    <v-btn @click="loginScreen = false" dark color="deep-purple darken-1">Sign Up</v-btn>
-                                    <v-btn @click="firebaseLogin" dark :class=" { 'white--text' : valid, disabled: !valid }"
-                                        color="deep-purple darken-1">Login</v-btn>
+                                <v-layout>
+                                     <v-btn @click="firebaseLogin" block dark :class=" { 'deep-purple darken-1' : valid, 'purple lighten-3' : !valid, disabled: !valid }">Login</v-btn>
+                                </v-layout>
+                                <v-layout>
+                                    <v-btn @click="loginScreen = false" block dark color="deep-purple darken-1">Sign Up</v-btn>
                                 </v-layout>
                             </v-form>
                         </div>
@@ -30,16 +31,17 @@
                             <v-form v-model="validSignup" ref="formSignUp">
                                 <v-text-field outline color="secondary" label="Enter your e-mail address" v-model="signupEmail"
                                     :rules="emailRules" required></v-text-field>
-                                <v-text-field outline color="secondary" label="Enter your github username" v-model="signupName"
-                                    :rules="nameRules" required></v-text-field>
+                                <v-text-field outline color="secondary" label="Enter your github username" v-model="signupName" :rules="usernameRules" 
+                                    @input="nameRules" :erro="nameError.state" :error-messages="nameError.message" required></v-text-field>
                                 <v-text-field outline color="secondary" type="password" label="Enter your password"
                                     v-model="signupPassword" :rules="passwordRules" required></v-text-field>
                                 <v-text-field outline color="secondary" type="password" label="Confirm your password"
                                     v-model="signupPasswordConfirmation" :rules="passwordConfirmationRules" required></v-text-field>
-                                <v-layout justify-space-between>
-                                    <v-btn @click="loginScreen = true" dark color="deep-purple darken-1">Back</v-btn>
-                                    <v-btn @click="firebaseSignUp" dark :class=" { 'white--text' : valid, disabled: !valid }"
-                                        color="deep-purple darken-1">Sign Up</v-btn>
+                                <v-layout>
+                                     <v-btn @click="firebaseSignUp" block dark :class=" { 'deep-purple darken-1' : validSignup, 'purple lighten-3' : !validSignup, disabled: !valid }">Sign Up</v-btn>
+                                </v-layout>
+                                <v-layout>
+                                    <v-btn @click="loginScreen = true" dark block color="deep-purple darken-1">Back</v-btn>
                                 </v-layout>
                             </v-form>
                         </div>
@@ -47,17 +49,25 @@
                 </v-card>
             </v-flex>
         </v-layout>
+        <v-snackbar v-model="snackbar" :bottom="true" :timeout="snackbarTimeout">
+            {{ snackbarText }}
+            <v-btn color="pink" flat @click="snackbar = false">
+                Close
+            </v-btn>
+        </v-snackbar>
     </v-container>
 </template>
 
 <script>
-    //import realTimeDatabase from '../axios';
     import axios from 'axios';
     import * as firebase from '../firebaseConfig.js'
 
     export default {
         data() {
             return {
+                snackbar: false,
+                snackbarText: '',
+                snackbarTimeout: 6000,
                 loginScreen: true,
                 valid: false,
                 validSignup: false,
@@ -71,9 +81,6 @@
                     (v) => !!v || 'E-mail is required',
                     (v) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
                 ],
-                nameRules: [
-                    (v) => !!v || 'Name is required',
-                ],
                 passwordRules: [
                     (v) => !!v || 'Password is required',
                     (v) => v.length >= 6 || 'Password must have at least six characters'
@@ -81,7 +88,14 @@
                 passwordConfirmationRules: [
                     (v) => !!v || 'Password confirmation is required',
                     (v) => v == this.signupPassword || 'Passwords must match'
-                ]
+                ],
+                usernameRules: [
+                    (v) => !!v || 'Username is required'
+                ],
+                nameError: {
+                    state: false,
+                    message: ''
+                }
             }
         },
         beforeCreate() {
@@ -100,6 +114,20 @@
             }
         },
         methods: {
+            nameRules(){
+                let self = this;
+                if (self.signupName){
+                    axios.get(`https://api.github.com/users/${self.signupName}?client_id=ad3ff196bbad5e9437a2&client_secret=7b940627c3fc95845760a2bbea5f329cfefdf837`).then((res)=>{
+                        console.log(res);
+                        self.nameError.state = false;
+                        self.nameError.message = '';
+                    }).catch((err)=>{
+                        console.log(err);
+                        self.nameError.state = true;
+                        self.nameError.message = 'Github username not found';
+                    });
+                }
+            },
             // Pure github authentication, was just working on my computer
             submit() {
                 if (this.valid) {
@@ -128,32 +156,34 @@
             },
             // Firebase authentication
             firebaseLogin(){
-                let self = this
-
-                firebase.auth.signInWithEmailAndPassword(self.email, self.password).then(user => {
-                    self.$store.commit('setCurrentUser', user);
-                    self.$router.push('/home');
-                }).catch(err => {
-                    console.log(err)
-                    //self.errorMsg = err.message
-                })
+                let self = this;
+                
+                if (self.valid) {
+                    firebase.auth.signInWithEmailAndPassword(self.email, self.password).then(user => {
+                        self.$store.commit('setCurrentUser', user);
+                        self.$router.push('/home');
+                    }).catch(err => {
+                        self.snackbarText = err;
+                    })
+                }
             },
             firebaseSignUp(){
-               let self = this
-                firebase.auth.createUserWithEmailAndPassword(self.signupEmail, self.signupPassword).then((auth)=>{
-                    if(auth){
-                        auth.user.updateProfile({
-                            displayName: self.signupName
-                        }).then( (s)=> {
-                            console.log(s);
-                            self.$store.commit('setCurrentUser', firebase.auth.currentUser);
-                            self.$router.replace('home');
-                        })
-                    }
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
+                let self = this;
+
+                if (self.validSignup) {
+                    firebase.auth.createUserWithEmailAndPassword(self.signupEmail, self.signupPassword).then((auth) => {
+                        if (auth) {
+                            auth.user.updateProfile({
+                                displayName: self.signupName
+                            }).then(() => {
+                                self.$store.commit('setCurrentUser', firebase.auth.currentUser);
+                                self.$router.replace('home');
+                            })
+                        }
+                    }).catch(function (error) {
+                        console.log(error);
+                    });
+                }
             },
             clear() {
                 this.$refs.form.reset()
