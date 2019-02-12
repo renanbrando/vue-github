@@ -13,9 +13,10 @@ firebase.auth.onAuthStateChanged(user => {
 
 export const store = new Vuex.Store({
     state: {
-        authToken: "",
-        isAuthenticated: false,
-        user: {},
+        //authToken: "",
+        //isAuthenticated: false,
+        //user: {},
+        repositories: [],
         currentUser: null,
         snackbar: {
             show: false,
@@ -25,7 +26,7 @@ export const store = new Vuex.Store({
         },
     },
     mutations: {
-        authenticate(state, token){
+        /*authenticate(state, token){
             state.isAuthenticated = true;
             state.authToken = token;
         },
@@ -34,9 +35,12 @@ export const store = new Vuex.Store({
         },
         logout(state){
             state.isAuthenticated = false;
+        },*/
+        setRepositories(state, repos){
+            state.repositories = repos;
         },
         setCurrentUser(state, user) {
-            state.currentUser = user
+            state.currentUser = user;
         },
         showSnackBar(state, snackbar){
             snackbar.show = true;
@@ -44,20 +48,21 @@ export const store = new Vuex.Store({
         }
     },
     actions: {
-        authenticate(state, token){
+        /*authenticate(state, token){
             state.commit('authenticate', token);
         },
         logout(state){
             state.commit('logout');
-        },
+        },*/
         clearData({ commit }) {
-            commit('setCurrentUser', null)
+            commit('setCurrentUser', null);
         }
     },
     getters: {
-        isAuthenticated: state => state.isAuthenticated,
-        authToken: state => state.authToken,
-        user: state => state.user,
+        //isAuthenticated: state => state.isAuthenticated,
+        //authToken: state => state.authToken,
+        //user: state => state.user,
+        repositories: state => state.repositories,
         currentUser: state => state.currentUser,
         snackbar: state => state.snackbar
     }

@@ -38,17 +38,18 @@
                                     <v-list-tile-title>License: {{ repo.license ? repo.license.name : "No license" }}</v-list-tile-title>
                                 </v-list-tile-content>
                             </v-list-tile>
+
+                             <v-list-tile>
+                                <v-btn dark small :class="{'grey': !repo.favorite, 'pink': repo.favorite}" @click="favoriteRepo(repo)">
+                                    <v-icon dark>favorite</v-icon>
+                                </v-btn>
+                            </v-list-tile>
+
                         </v-list-group>
                     </v-list>
                 </v-card>
             </v-flex>
         </v-layout>
-        <v-snackbar v-model="snackbar" :bottom="true" :timeout="snackbarTimeout">
-            {{ snackbarText }}
-            <v-btn color="pink" flat @click="snackbar = false">
-                Close
-            </v-btn>
-        </v-snackbar>
     </div>
 </template>
 
@@ -61,34 +62,41 @@ export default {
     },
     data() {
         return {
-            repos: [],
             search: "",
-            snackbar: false,
-            snackbarTimeout: 6000,
-            snackbarText: ""
         }
     },
     beforeCreate(){
         let self = this;
-        axios.get(`https://api.github.com/users/${self.$store.getters.currentUser.displayName}/repos`).then((res) => {
-            self.repos = res.data;
-        }); 
 
-        axios.get(`https://api.github.com/users/${self.$store.getters.currentUser.displayName}?client_id=ad3ff196bbad5e9437a2&client_secret=7b940627c3fc95845760a2bbea5f329cfefdf837`).then(resp => {
-            let user = self.$store.getters.currentUser;
-            user.photoURL = resp.data.avatar_url;
-            self.$store.commit('setCurrentUser', user);
-        });
+        // In case of repos already loaded
+        if (!self.$store.getters.repositories.length > 0){
+            axios.get(`https://api.github.com/users/${self.$store.getters.currentUser.displayName}/repos`).then((res) => {
+                let repos = res.data;
+                for(let element of repos){
+                    element.favorite = false;
+                }
+                self.$store.commit('setRepositories', repos);
+            }); 
+        }
     },
     methods: {
-      
+        favoriteRepo(repo){
+            let self = this;
+            let repos = self.$store.getters.repositories;
+            for (let element of repos){
+                if (element.id == repo.id)
+                    element.favorite = !repo.favorite;
+            }
+            self.$store.commit('setRepositories', repos);  
+        }
     },
     computed:{
         repositories(){
-            if (this.search){
-                return this.repos.filter(repo => repo.name.indexOf(this.search) > -1);
+            let self = this;
+            if (self.search){
+                return self.$store.getters.repositories.filter(repo => repo.name.indexOf(this.search) > -1);
             }
-            return this.repos;
+            return self.$store.getters.repositories;
         }
     }
 }

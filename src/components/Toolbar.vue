@@ -58,12 +58,17 @@ export default {
             items: [{
                     title: 'Home',
                     icon: 'list',
-                    path: "/"
+                    path: "/home"
                 },
                 {
                     title: 'Favorites',
                     icon: 'favorite',
                     path: "/favorites"
+                },
+                {
+                    title: 'Profile',
+                    icon: 'account_circle',
+                    path: "/profile"
                 }
             ]
         }

@@ -13,7 +13,7 @@
                             <v-form v-model="valid" ref="form">
                                 <v-text-field outline color="secondary" label="Enter your e-mail address" v-model="email"
                                     :rules="emailRules" required></v-text-field>
-                                <v-text-field outline color="secondary" type="password" label="Enter your password"
+                                <v-text-field outline color="secondary" label="Enter your password" :append-icon="showPassword ? 'visibility_off' : 'visibility'" :type="showPassword ? 'text' : 'password'" @click:append="showPassword = !showPassword"
                                     v-model="password" :rules="passwordRules" required></v-text-field>
                                 <v-layout>
                                      <v-btn @click="firebaseLogin" block dark :class=" { 'deep-purple darken-1' : valid, 'purple lighten-3' : !valid, disabled: !valid }">Login</v-btn>
@@ -33,10 +33,10 @@
                                     :rules="emailRules" required></v-text-field>
                                 <v-text-field outline color="secondary" label="Enter your github username" v-model="signupName" :rules="usernameRules" 
                                     @input="nameRules" :erro="nameError.state" :error-messages="nameError.message" required></v-text-field>
-                                <v-text-field outline color="secondary" type="password" label="Enter your password"
-                                    v-model="signupPassword" :rules="passwordRules" required></v-text-field>
-                                <v-text-field outline color="secondary" type="password" label="Confirm your password"
-                                    v-model="signupPasswordConfirmation" :rules="passwordConfirmationRules" required></v-text-field>
+                                <v-text-field outline color="secondary" label="Enter your password" :append-icon="showSPPassword ? 'visibility_off' : 'visibility'" :type="showSPPassword ? 'text' : 'password'" @click:append="showSPPassword = !showSPPassword"
+                                    v-model="signupPassword" :rules="passwordRules" required counter></v-text-field>
+                                <v-text-field outline color="secondary" label="Confirm your password" :append-icon="showSPCPassword ? 'visibility_off' : 'visibility'" :type="showSPCPassword ? 'text' : 'password'" @click:append="showSPCPassword = !showSPCPassword"
+                                    v-model="signupPasswordConfirmation" :rules="passwordConfirmationRules" required counter></v-text-field>
                                 <v-layout>
                                      <v-btn @click="firebaseSignUp" block dark :class=" { 'deep-purple darken-1' : validSignup, 'purple lighten-3' : !validSignup, disabled: !valid }">Sign Up</v-btn>
                                 </v-layout>
@@ -64,10 +64,13 @@
                 validSignup: false,
                 email: '',
                 password: '',
+                showPassword: false,
                 signupEmail: '',
                 signupName: '',
                 signupPassword: '',
                 signupPasswordConfirmation: '',
+                showSPPassword: false,
+                showSPCPassword: false,
                 emailRules: [
                     (v) => !!v || 'E-mail is required',
                     (v) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
@@ -91,7 +94,7 @@
         },
         beforeCreate() {
             // Github authentication callback
-            if (this.$route.query.code) {
+            /*if (this.$route.query.code) {
                 let code = this.$route.query.code;
                 let url =
                     `https://github.com/login/oauth/access_token?client_id=ad3ff196bbad5e9437a2&client_secret=7b940627c3fc95845760a2bbea5f329cfefdf837&code=${code}`;
@@ -103,7 +106,7 @@
                     console.log(res.data.access_token);
                     this.getUser(res.data.access_token);
                 });
-            }
+            }*/
         },
         methods: {
             nameRules(){
@@ -166,21 +169,25 @@
                 let self = this;
 
                 if (self.validSignup) {
-                    firebase.auth.createUserWithEmailAndPassword(self.signupEmail, self.signupPassword).then((auth) => {
-                        if (auth) {
-                            auth.user.updateProfile({
-                                displayName: self.signupName
-                            }).then(() => {
-                                self.$store.commit('setCurrentUser', firebase.auth.currentUser);
-                                self.$router.replace('home');
-                            })
-                        }
-                    }).catch(function (error) {
-                        this.$store.commit('showSnackBar', {
-                            text: error,
-                            color: 'error',
+                    // Gets profile picture
+                    axios.get(`https://api.github.com/users/${self.signupName}?client_id=ad3ff196bbad5e9437a2&client_secret=7b940627c3fc95845760a2bbea5f329cfefdf837`).then(resp => {
+                        firebase.auth.createUserWithEmailAndPassword(self.signupEmail, self.signupPassword).then((auth) => {
+                            if (auth) {
+                                auth.user.updateProfile({
+                                    displayName: self.signupName,
+                                    photoURL: resp.data.avatar_url
+                                }).then(() => {
+                                    self.$store.commit('setCurrentUser', firebase.auth.currentUser);
+                                    self.$router.replace('home');
+                                })
+                            }
+                        }).catch(function (error) {
+                            self.$store.commit('showSnackBar', {
+                                text: error,
+                                color: 'error',
+                            });
                         });
-                    });
+                    }); 
                 }
             },
             clear() {

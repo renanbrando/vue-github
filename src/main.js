@@ -8,17 +8,6 @@ import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
-const state = store;
-
-router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth){
-    if(!state.getters.isAuthenticated){
-      router.replace('/login');
-    }
-  }
-  next();
-});
-
 let app
 firebase.auth.onAuthStateChanged(() => {
     if (!app) {

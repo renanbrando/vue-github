@@ -24,19 +24,19 @@ const router = new Router({
         'header': () => import('./components/Toolbar.vue') 
       },
       meta: {
-        requiresAuth: false
+        requiresAuth: true
       }
     },
-    { 
+    /*{ 
       path: '/home:code', 
       components: {
         default: () => import('./views/Home.vue'),
         'header': () => import('./components/Toolbar.vue') 
       },
       meta: {
-        requiresAuth: false
+        requiresAuth: true
       }
-    },
+    },*/
     { 
       path: '/favorites', 
       components: {
@@ -48,14 +48,18 @@ const router = new Router({
       }
     },
     { 
-      path: '*', 
+      path: '/profile', 
       components: {
-        default: () => import('./views/Home.vue'),
+        default: () => import('./views/Profile.vue'),
         'header': () => import('./components/Toolbar.vue') 
       },
       meta: {
         requiresAuth: true
       }
+    },
+    { 
+      path: '*', 
+      redirect: '/home'
     }
   ]
 })
@@ -67,10 +71,12 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !currentUser) {
       next('/login')
   } else if (requiresAuth && currentUser) {
-      next()
+    next(vm => {
+      vm.$router.push(to.path)
+    })
   } else {
       next()
-  }
+  } 
 })
 
 export default router
