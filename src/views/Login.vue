@@ -49,9 +49,9 @@
                 </v-card>
             </v-flex>
         </v-layout>
-        <v-snackbar v-model="snackbar" :bottom="true" :timeout="snackbarTimeout">
-            {{ snackbarText }}
-            <v-btn color="pink" flat @click="snackbar = false">
+        <v-snackbar v-model="snackbar.show" :bottom="true" :timeout="snackbar.timeout" :color="snackbar.color">
+            {{ snackbar.text }}
+            <v-btn flat @click="snackbar.show = false">
                 Close
             </v-btn>
         </v-snackbar>
@@ -65,9 +65,12 @@
     export default {
         data() {
             return {
-                snackbar: false,
-                snackbarText: '',
-                snackbarTimeout: 6000,
+                snackbar: {
+                    show: false,
+                    text: '',
+                    timeout: 6000,
+                    color: 'pink'
+                },
                 loginScreen: true,
                 valid: false,
                 validSignup: false,
@@ -99,6 +102,7 @@
             }
         },
         beforeCreate() {
+            // Github authentication callback
             if (this.$route.query.code) {
                 let code = this.$route.query.code;
                 let url =
@@ -128,7 +132,7 @@
                     });
                 }
             },
-            // Pure github authentication, was just working on my computer
+            // Pure github authentication, it was just working on my computer
             submit() {
                 if (this.valid) {
                     axios.get(
@@ -163,7 +167,9 @@
                         self.$store.commit('setCurrentUser', user);
                         self.$router.push('/home');
                     }).catch(err => {
-                        self.snackbarText = err;
+                        self.snackbar.color = 'error';
+                        self.snackbar.text = err;
+                        self.snackbar.show = true;
                     })
                 }
             },
@@ -181,7 +187,9 @@
                             })
                         }
                     }).catch(function (error) {
-                        console.log(error);
+                        self.snackbar.color = 'error';
+                        self.snackbar.text = error;
+                        self.snackbar.show = true;
                     });
                 }
             },
