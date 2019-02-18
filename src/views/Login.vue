@@ -156,9 +156,9 @@
             githubLogin(){
                 let self = this;
                 let provider = new fb.auth.GithubAuthProvider();
-                //provider.addScope('repo');
+                provider.addScope('repo');
                 //gets just public repositories
-                provider.addScope('public_repo');
+                //provider.addScope('public_repo');
                 fb.auth().signInWithPopup(provider).then(function(result) {
                     // This gives you a GitHub Access Token. You can use it to access the GitHub API.
                     //let token = result.credential.accessToken;
