@@ -1,4 +1,4 @@
-# github-vue
+# Github Vue
 
 ## Project setup
 ```
@@ -14,12 +14,6 @@ npm run serve
 ```
 npm run build
 ```
-
-### Run your tests
-```
-npm run test
-```
-
 ### Lints and fixes files
 ```
 npm run lint
@@ -27,3 +21,6 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### This app supports pwa
+Just access the [online website](https://renanbrando.github.io/) hosted in github pages from any mobile device and select "Add Home".
