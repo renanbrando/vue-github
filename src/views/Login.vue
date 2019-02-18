@@ -19,6 +19,9 @@
                                      <v-btn @click="firebaseLogin" block dark :class=" { 'deep-purple darken-1' : valid, 'purple lighten-3' : !valid, disabled: !valid }">Login</v-btn>
                                 </v-layout>
                                 <v-layout>
+                                     <v-btn @click="githubLogin" block dark class="deep-purple darken-1">Login with github</v-btn>
+                                </v-layout>
+                                <v-layout>
                                     <v-btn @click="loginScreen = false" block dark color="deep-purple darken-1">Sign Up</v-btn>
                                 </v-layout>
                             </v-form>
@@ -55,6 +58,7 @@
 <script>
     import axios from 'axios';
     import * as firebase from '../firebaseConfig.js'
+    import fb from 'firebase'
 
     export default {
         data() {
@@ -147,6 +151,36 @@
                 axios.get(`https://api.github.com/user?access_token=${token}`).then(user => {
                     this.$store.commit('setUser', user.data);
                     this.login(token);
+                });
+            },
+            githubLogin(){
+                let self = this;
+                let provider = new fb.auth.GithubAuthProvider();
+                //provider.addScope('repo');
+                //gets just public repositories
+                provider.addScope('public_repo');
+                fb.auth().signInWithPopup(provider).then(function(result) {
+                    // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+                    //let token = result.credential.accessToken;
+                    // The signed-in user info.
+                    let user = result.user;
+                    user.displayName = result.additionalUserInfo.profile.login;
+                    self.$store.commit('setCurrentUser', result.user);
+                    self.$router.push('/home');
+                    // ...
+                }).catch(function(error) {
+                    // Handle Errors here.
+                    //var errorCode = error.code;
+                    //var errorMessage = error.message;
+                    // The email of the user's account used.
+                    //var email = error.email;
+                    // The firebase.auth.AuthCredential type that was used.
+                    //var credential = error.credential;
+                    // ...
+                    self.$store.commit('showSnackBar', {
+                        text: error.message,
+                        color: 'error',
+                    });
                 });
             },
             // Firebase authentication
